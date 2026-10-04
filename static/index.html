@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6ef">
+  <title>Weather Desk</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f4f6ef;
+      --ink: #17251f;
+      --muted: #64736c;
+      --line: #d8dfd6;
+      --green: #1b4938;
+      --green-dark: #13372b;
+      --lime: #d8e888;
+      --orange: #ed805b;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      background-color: var(--paper);
+      background-image: radial-gradient(#cbd4c7 0.7px, transparent 0.7px);
+      background-size: 20px 20px;
+    }
+
+    .shell {
+      width: min(100% - 40px, 960px);
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 76px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .wordmark {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .mark {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--green);
+      color: var(--lime);
+      font-size: 18px;
+    }
+
+    .live-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #58a477;
+      box-shadow: 0 0 0 3px #58a47722;
+    }
+
+    main { padding: 64px 0 80px; }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #4f705f;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 650px;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(38px, 6vw, 64px);
+      font-weight: 400;
+      line-height: 1.05;
+    }
+
+    .intro {
+      margin: 17px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .weather-tool {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.78fr);
+      margin-top: 42px;
+      overflow: hidden;
+      border: 1px solid #d1d9ce;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 18px 50px #223a2a12;
+    }
+
+    .search-side { padding: 34px; }
+
+    .section-label {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 9px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      min-width: 0;
+      flex: 1;
+      height: 52px;
+      padding: 0 15px;
+      border: 1px solid #cbd5cb;
+      border-radius: 6px;
+      outline: none;
+      background: #fbfcf9;
+      color: var(--ink);
+      font: inherit;
+      font-size: 15px;
+      transition: border-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    input::placeholder { color: #89958d; }
+
+    input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px #1b49381c;
+    }
+
+    button {
+      min-width: 122px;
+      height: 52px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--green);
+      color: #fff;
+      cursor: pointer;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      transition: background 140ms ease, transform 140ms ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      background: var(--green-dark);
+    }
+
+    button:focus-visible {
+      outline: 3px solid var(--orange);
+      outline-offset: 3px;
+    }
+
+    button:disabled { cursor: wait; opacity: 0.72; }
+
+    .field-note {
+      margin: 11px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .result-side {
+      display: flex;
+      min-height: 260px;
+      flex-direction: column;
+      justify-content: center;
+      padding: 34px;
+      background: var(--green);
+      color: #fff;
+    }
+
+    .result-side .section-label { color: #d5e6d9; }
+
+    .empty-state {
+      max-width: 255px;
+      margin: 0;
+      color: #e2eee5;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 25px;
+      line-height: 1.35;
+    }
+
+    .weather-result { animation: arrive 240ms ease-out both; }
+
+    .place-name {
+      margin: 0 0 2px;
+      color: #d5e6d9;
+      font-size: 14px;
+    }
+
+    .temperature {
+      margin: 0;
+      color: var(--lime);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 76px;
+      line-height: 1.1;
+    }
+
+    .temperature span {
+      margin-left: 4px;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      font-size: 24px;
+      vertical-align: top;
+    }
+
+    .summary {
+      max-width: 290px;
+      margin: 10px 0 0;
+      color: #f0f5ef;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .error-message {
+      margin: 18px 0 0;
+      padding: 11px 13px;
+      border-left: 3px solid var(--orange);
+      background: #fff4ef;
+      color: #8b3825;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    footer a { color: var(--green); text-decoration-thickness: 1px; }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 700px) {
+      .shell { width: min(100% - 28px, 520px); }
+      main { padding: 44px 0 56px; }
+      .weather-tool { grid-template-columns: 1fr; margin-top: 30px; }
+      .search-side, .result-side { padding: 25px; }
+      .result-side { min-height: 235px; }
+    }
+
+    @media (max-width: 430px) {
+      header { min-height: 66px; }
+      .live-tag { font-size: 10px; }
+      .input-row { flex-direction: column; }
+      button { width: 100%; }
+      footer { flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="wordmark"><span class="mark" aria-hidden="true">W</span> Weather Desk</div>
+      <div class="live-tag"><span class="live-dot" aria-hidden="true"></span> Live lookup</div>
+    </header>
+
+    <main>
+      <p class="eyebrow">Current conditions, by city</p>
+      <h1>Weather, at a glance.</h1>
+      <p class="intro">Enter a city to check its current temperature and a quick local outlook.</p>
+
+      <section class="weather-tool" aria-label="Weather lookup">
+        <div class="search-side">
+          <p class="section-label">01 / Location</p>
+          <form id="weather-form">
+            <label for="city">City name</label>
+            <div class="input-row">
+              <input id="city" name="city" type="text" placeholder="e.g. Copenhagen" autocomplete="off" required>
+              <button id="submit-button" type="submit">Check weather</button>
+            </div>
+            <p class="field-note">Temperature is returned in degrees Celsius.</p>
+            <p id="error-message" class="error-message" role="alert" hidden></p>
+          </form>
+        </div>
+
+        <div class="result-side" id="result-panel" aria-live="polite" aria-busy="false">
+          <p class="section-label">02 / Conditions</p>
+          <p id="empty-state" class="empty-state">Your forecast will appear here.</p>
+          <div id="weather-result" class="weather-result" hidden>
+            <p id="result-city" class="place-name"></p>
+            <p class="temperature"><span id="result-temperature"></span><span>°C</span></p>
+            <p id="result-summary" class="summary"></p>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <span>Weather data via Open-Meteo</span>
+        <a href="/docs">API documentation</a>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const form = document.querySelector("#weather-form");
+    const cityInput = document.querySelector("#city");
+    const submitButton = document.querySelector("#submit-button");
+    const errorMessage = document.querySelector("#error-message");
+    const resultPanel = document.querySelector("#result-panel");
+    const emptyState = document.querySelector("#empty-state");
+    const weatherResult = document.querySelector("#weather-result");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const city = cityInput.value.trim();
+      if (!city) {
+        cityInput.focus();
+        return;
+      }
+
+      errorMessage.hidden = true;
+      weatherResult.hidden = true;
+      emptyState.hidden = false;
+      emptyState.textContent = "Looking up current conditions...";
+      resultPanel.setAttribute("aria-busy", "true");
+      submitButton.disabled = true;
+      submitButton.textContent = "Checking...";
+
+      try {
+        const response = await fetch("/weather", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ city })
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || "Weather lookup failed. Please try again.");
+        }
+
+        document.querySelector("#result-city").textContent = data.city;
+        document.querySelector("#result-temperature").textContent = Number(data.temperature_c).toFixed(1);
+        document.querySelector("#result-summary").textContent = data.summary;
+        emptyState.hidden = true;
+        weatherResult.hidden = false;
+      } catch (error) {
+        emptyState.hidden = true;
+        errorMessage.textContent = error.message || "Could not connect to the weather service. Please try again.";
+        errorMessage.hidden = false;
+      } finally {
+        resultPanel.setAttribute("aria-busy", "false");
+        submitButton.disabled = false;
+        submitButton.textContent = "Check weather";
+      }
+    });
+  </script>
+</body>
+</html>

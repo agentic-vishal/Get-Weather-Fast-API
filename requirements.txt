@@ -1,0 +1,6 @@
+httpx
+typing
+pydantic
+fastapi
+langgraph
+uvicorn[standard]
